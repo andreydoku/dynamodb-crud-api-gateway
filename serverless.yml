@@ -1,0 +1,105 @@
+service: dynamodb-crud-api
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: us-east-2
+  environment:
+    DYNAMODB_TABLE_NAME: ${self:custom.todosTableName}
+
+custom:
+  todosTableName: todos-table-${self:provider.stage}
+
+plugins:
+  - serverless-iam-roles-per-function
+
+functions:
+  getTodo:
+    handler: api.getTodo
+    name: get-todo
+    memorySize: 128 # mb
+    timeout: 5 # seconds
+    events:
+      - http:
+          path: todo/{todoId}
+          method: GET
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:GetItem"
+        Resource: !GetAtt TodosTable.Arn
+  createTodo:
+    handler: api.createTodo
+    name: create-todo
+    memorySize: 128 # mb
+    timeout: 5 # seconds
+    events:
+      - http:
+          path: todo
+          method: POST
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:PutItem"
+        Resource: !GetAtt TodosTable.Arn
+  updateTodo:
+    handler: api.updateTodo
+    name: update-todo
+    memorySize: 128 # mb
+    timeout: 5 # seconds
+    events:
+      - http:
+          path: todo/{todoId}
+          method: PUT
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:UpdateItem"
+        Resource: !GetAtt TodosTable.Arn
+  deleteTodo:
+    handler: api.deleteTodo
+    name: delete-todo
+    memorySize: 128 # mb
+    timeout: 5 # seconds
+    events:
+      - http:
+          path: todo/{todoId}
+          method: DELETE
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DeleteItem"
+        Resource: !GetAtt TodosTable.Arn
+  getAllTodos:
+    handler: api.getAllTodos
+    name: get-all-todos
+    memorySize: 128 # mb
+    timeout: 5 # seconds
+    events:
+      - http:
+          path: todos
+          method: GET
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:Scan"
+        Resource: !GetAtt TodosTable.Arn
+    
+
+resources:
+  Resources:
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.todosTableName}
+        AttributeDefinitions:
+          - AttributeName: todoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: todoId
+            AttributeType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        
