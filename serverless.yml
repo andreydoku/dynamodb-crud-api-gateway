@@ -98,7 +98,7 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: todoId
-            AttributeType: HASH
+            KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
