@@ -156,9 +156,9 @@ const getAllTodos = async () => {
 };
 
 module.exports = {
-    getPost,
-    createPost,
-    updatePost,
-    deletePost,
-    getAllPosts,
+    getTodo,
+    createTodo,
+    updateTodo,
+    deleteTodo,
+    getAllTodos,
 };
