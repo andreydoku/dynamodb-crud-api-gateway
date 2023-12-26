@@ -17,22 +17,15 @@ plugins:
 
 
 functions:
-
-  hello:
-    handler: src/hello.handler
-    events: # The events that trigger this function
-      - http: 
-          path: hello
-          method: GET
-          
+     
   getTodo:
-    handler: api.getTodo
+    handler: src/Controller.getTodo
     name: get-todo
     memorySize: 128 # mb
     timeout: 5 # seconds
     events:
       - http:
-          path: todo/{todoId}
+          path: /todo/{todoId}
           method: GET
     iamRoleStatements:
       - Effect: "Allow"
@@ -41,13 +34,13 @@ functions:
         Resource: !GetAtt TodosTable.Arn
         
   createTodo:
-    handler: api.createTodo
+    handler: src/Controller.createTodo
     name: create-todo
     memorySize: 128 # mb
     timeout: 5 # seconds
     events:
       - http:
-          path: todo
+          path: /todo
           method: POST
     iamRoleStatements:
       - Effect: "Allow"
@@ -56,13 +49,13 @@ functions:
         Resource: !GetAtt TodosTable.Arn
         
   updateTodo:
-    handler: api.updateTodo
+    handler: src/Controller.updateTodo
     name: update-todo
     memorySize: 128 # mb
     timeout: 5 # seconds
     events:
       - http:
-          path: todo/{todoId}
+          path: /todo/{todoId}
           method: PUT
     iamRoleStatements:
       - Effect: "Allow"
@@ -71,13 +64,13 @@ functions:
         Resource: !GetAtt TodosTable.Arn
         
   deleteTodo:
-    handler: api.deleteTodo
+    handler: src/Controller.deleteTodo
     name: delete-todo
     memorySize: 128 # mb
     timeout: 5 # seconds
     events:
       - http:
-          path: todo/{todoId}
+          path: /todo/{todoId}
           method: DELETE
     iamRoleStatements:
       - Effect: "Allow"
