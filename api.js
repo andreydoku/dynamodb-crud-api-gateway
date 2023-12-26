@@ -7,7 +7,7 @@ const {
     UpdateItemCommand,
 } = require("@aws-sdk/client-dynamodb");
 const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
-
+const { uuidv4 } = require('uuid');
 
 const getTodo = async (event) => {
     const response = { statusCode: 200 };
@@ -43,6 +43,8 @@ const createTodo = async (event) => {
 
     try {
         const body = JSON.parse(event.body);
+		body.todoId = uuidv4();
+		
         const params = {
             TableName: process.env.DYNAMODB_TABLE_NAME,
             Item: marshall(body || {}),
