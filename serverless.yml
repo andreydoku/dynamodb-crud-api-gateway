@@ -13,8 +13,18 @@ custom:
 
 plugins:
   - serverless-iam-roles-per-function
+  - serverless-plugin-typescript
+
 
 functions:
+
+  hello:
+    handler: src/hello.handler
+    events: # The events that trigger this function
+      - http: 
+          path: hello
+          method: GET
+          
   getTodo:
     handler: api.getTodo
     name: get-todo
@@ -29,6 +39,7 @@ functions:
         Action:
           - "dynamodb:GetItem"
         Resource: !GetAtt TodosTable.Arn
+        
   createTodo:
     handler: api.createTodo
     name: create-todo
@@ -43,6 +54,7 @@ functions:
         Action:
           - "dynamodb:PutItem"
         Resource: !GetAtt TodosTable.Arn
+        
   updateTodo:
     handler: api.updateTodo
     name: update-todo
@@ -57,6 +69,7 @@ functions:
         Action:
           - "dynamodb:UpdateItem"
         Resource: !GetAtt TodosTable.Arn
+        
   deleteTodo:
     handler: api.deleteTodo
     name: delete-todo
@@ -71,14 +84,15 @@ functions:
         Action:
           - "dynamodb:DeleteItem"
         Resource: !GetAtt TodosTable.Arn
+        
   getAllTodos:
-    handler: api.getAllTodos
+    handler: src/Controller.getAllTodos
     name: get-all-todos
     memorySize: 128 # mb
     timeout: 5 # seconds
     events:
       - http:
-          path: todos
+          path: /todos
           method: GET
     iamRoleStatements:
       - Effect: "Allow"
