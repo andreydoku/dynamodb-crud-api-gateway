@@ -19,7 +19,7 @@ provider:
           Resource: "*"
 
 custom:
-    todosTableName: todos-table-${self:provider.stage}
+    todosTableName: todos-table-${self:provider.stage}-2
 
 plugins:
     - serverless-iam-roles-per-function
@@ -33,11 +33,11 @@ functions:
         timeout: 5 # seconds
         events:
             - http:
-                    path: /todo/{todoId}
+                    path: /todos/{todoId}
                     method: GET
                     authorizer:
                         name: authorizer
-                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_AggDUQFjv
         iamRoleStatements:
             - Effect: "Allow"
               Action:
@@ -51,11 +51,11 @@ functions:
         timeout: 5 # seconds
         events:
             - http:
-                  path: /todo
+                  path: /todos
                   method: POST
                   authorizer:
                         name: authorizer
-                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_AggDUQFjv
         iamRoleStatements:
             - Effect: "Allow"
               Action:
@@ -69,11 +69,11 @@ functions:
         timeout: 5 # seconds
         events:
             - http:
-                  path: /todo/{todoId}
+                  path: /todos/{todoId}
                   method: PUT
                   authorizer:
                         name: authorizer
-                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_AggDUQFjv
         iamRoleStatements:
             - Effect: "Allow"
               Action:
@@ -110,7 +110,7 @@ functions:
                   method: GET
                   authorizer:
                         name: authorizer
-                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_AggDUQFjv
         iamRoleStatements:
             - Effect: "Allow"
               Action:
@@ -124,10 +124,10 @@ resources:
             Properties:
                 TableName: ${self:custom.todosTableName}
                 AttributeDefinitions:
-                    - AttributeName: todoId
+                    - AttributeName: id
                       AttributeType: S
                 KeySchema:
-                    - AttributeName: todoId
+                    - AttributeName: id
                       KeyType: HASH
                 ProvisionedThroughput:
                     ReadCapacityUnits: 1

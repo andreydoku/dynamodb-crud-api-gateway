@@ -1,10 +1,13 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Todo } from './Todo';
+
 import { Service } from "./Service";
+import { User } from './User';
+
 
 const service:Service = new Service();
 
-//   /todo/{todoId}
+//   GET /todos/{todoId}
 export const getTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 	
 	const id:string|undefined = event?.pathParameters?.todoId;
@@ -43,8 +46,26 @@ export const getTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEvent
 	
 }
 
-//   /todo
+
+function getUserFromEvent(event: APIGatewayProxyEvent) : User{
+	
+	const claims = event?.requestContext?.authorizer?.claims;
+	
+	const user:User = {
+		id: claims.sub,
+		firstName: claims.given_name,
+		lastName: claims.family_name
+	};
+	
+	return user;
+}
+
+//   POST /todos
 export const createTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+	
+	const user:User = getUserFromEvent( event );
+	console.log( "received createTodo request from user: " + JSON.stringify(user) );
+	
 	
 	if(!event.body ){
 		return {
@@ -57,7 +78,8 @@ export const createTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEv
 	
 	const requestBody = JSON.parse(event.body);
 	const todo:Todo = {
-		todoId: null, 
+		userId: user.id,
+		id: null, 
 		title: requestBody.title, 
 		isDone: requestBody.isDone
 	};
@@ -98,7 +120,7 @@ export const createTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEv
 	
 }
 
-//   /todo/{todoId}
+//   DELETE /todos/{todoId}
 export const deleteTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 	
 	const id:string|undefined = event?.pathParameters?.todoId;
@@ -139,11 +161,15 @@ export const deleteTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEv
 }
 
 
-//   /todos
-export const getAllTodos: APIGatewayProxyHandler = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+//   GET /todos
+export const getAllTodos: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+	
+	const user:User = getUserFromEvent( event );
+	console.log( "received getAllTodos request from user: " + JSON.stringify(user) );
+	
 	try {
 		
-		const todos:Todo[] = await service.getAllTodos();
+		const todos:Todo[] = await service.getAllTodos(user);
 		
 		const response = {
 			statusCode: 200,
