@@ -129,7 +129,7 @@ export const deleteTodo: APIGatewayProxyHandler = async(event: APIGatewayProxyEv
 		return {
 			statusCode: 500,
 			body: JSON.stringify({
-				message: "Failed to create todo.",
+				message: "Failed to delete todo.",
 				errorMsg: e.message,
 				errorStack: e.stack,
 			})

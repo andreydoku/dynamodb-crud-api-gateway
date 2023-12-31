@@ -1,112 +1,152 @@
 service: dynamodb-crud-api
 
 provider:
-  name: aws
-  runtime: nodejs14.x
-  stage: dev
-  region: us-east-2
-  environment:
-    DYNAMODB_TABLE_NAME: ${self:custom.todosTableName}
+    name: aws
+    runtime: nodejs14.x
+    stage: dev
+    region: us-east-2
+    environment:
+        DYNAMODB_TABLE_NAME: ${self:custom.todosTableName}
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+                - cognito-idp:AdminSetUserPassword
+                - cognito-idp:AdminInitiateAuth
+                - cognito-idp:AdminCreateUser
+                - cognito-idp:AdminSetUserPassword
+                - cognito-idp:CreateUserPool
+                - cognito-idp:ListUsers
+          Resource: "*"
 
 custom:
-  todosTableName: todos-table-${self:provider.stage}
+    todosTableName: todos-table-${self:provider.stage}
 
 plugins:
-  - serverless-iam-roles-per-function
-  - serverless-plugin-typescript
-
+    - serverless-iam-roles-per-function
+    - serverless-plugin-typescript
 
 functions:
-     
-  getTodo:
-    handler: src/Controller.getTodo
-    name: get-todo
-    memorySize: 128 # mb
-    timeout: 5 # seconds
-    events:
-      - http:
-          path: /todo/{todoId}
-          method: GET
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "dynamodb:GetItem"
-        Resource: !GetAtt TodosTable.Arn
-        
-  createTodo:
-    handler: src/Controller.createTodo
-    name: create-todo
-    memorySize: 128 # mb
-    timeout: 5 # seconds
-    events:
-      - http:
-          path: /todo
-          method: POST
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "dynamodb:PutItem"
-        Resource: !GetAtt TodosTable.Arn
-        
-  updateTodo:
-    handler: src/Controller.updateTodo
-    name: update-todo
-    memorySize: 128 # mb
-    timeout: 5 # seconds
-    events:
-      - http:
-          path: /todo/{todoId}
-          method: PUT
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "dynamodb:UpdateItem"
-        Resource: !GetAtt TodosTable.Arn
-        
-  deleteTodo:
-    handler: src/Controller.deleteTodo
-    name: delete-todo
-    memorySize: 128 # mb
-    timeout: 5 # seconds
-    events:
-      - http:
-          path: /todo/{todoId}
-          method: DELETE
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "dynamodb:DeleteItem"
-        Resource: !GetAtt TodosTable.Arn
-        
-  getAllTodos:
-    handler: src/Controller.getAllTodos
-    name: get-all-todos
-    memorySize: 128 # mb
-    timeout: 5 # seconds
-    events:
-      - http:
-          path: /todos
-          method: GET
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "dynamodb:Scan"
-        Resource: !GetAtt TodosTable.Arn
-    
+    getTodo:
+        handler: src/Controller.getTodo
+        name: get-todo
+        memorySize: 128 # mb
+        timeout: 5 # seconds
+        events:
+            - http:
+                    path: /todo/{todoId}
+                    method: GET
+                    authorizer:
+                        name: authorizer
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+        iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                  - "dynamodb:GetItem"
+              Resource: !GetAtt TodosTable.Arn
+
+    createTodo:
+        handler: src/Controller.createTodo
+        name: create-todo
+        memorySize: 128 # mb
+        timeout: 5 # seconds
+        events:
+            - http:
+                  path: /todo
+                  method: POST
+                  authorizer:
+                        name: authorizer
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+        iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                  - "dynamodb:PutItem"
+              Resource: !GetAtt TodosTable.Arn
+
+    updateTodo:
+        handler: src/Controller.updateTodo
+        name: update-todo
+        memorySize: 128 # mb
+        timeout: 5 # seconds
+        events:
+            - http:
+                  path: /todo/{todoId}
+                  method: PUT
+                  authorizer:
+                        name: authorizer
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+        iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                  - "dynamodb:UpdateItem"
+              Resource: !GetAtt TodosTable.Arn
+
+    deleteTodo:
+        handler: src/Controller.deleteTodo
+        name: delete-todo
+        memorySize: 128 # mb
+        timeout: 5 # seconds
+        events:
+            - http:
+                  path: /todo/{todoId}
+                  method: DELETE
+                  authorizer:
+                        name: authorizer
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+        iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:GetItem"
+              Resource: !GetAtt TodosTable.Arn
+
+    getAllTodos:
+        handler: src/Controller.getAllTodos
+        name: get-all-todos
+        memorySize: 128 # mb
+        timeout: 5 # seconds
+        events:
+            - http:
+                  path: /todos
+                  method: GET
+                  authorizer:
+                        name: authorizer
+                        arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_38TqHEbYH
+        iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                  - "dynamodb:Scan"
+              Resource: !GetAtt TodosTable.Arn
 
 resources:
-  Resources:
-    TodosTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:custom.todosTableName}
-        AttributeDefinitions:
-          - AttributeName: todoId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: todoId
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        
+    Resources:
+        TodosTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: ${self:custom.todosTableName}
+                AttributeDefinitions:
+                    - AttributeName: todoId
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: todoId
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 1
+                    WriteCapacityUnits: 1
+        # CognitoUserPool:
+        #     Type: AWS::Cognito::UserPool
+        #     Properties:
+        #         UserPoolName: ${self:provider.stage}-user-pool
+        #         UsernameAttributes:
+        #             - email
+        #         AutoVerifiedAttributes:
+        #             - email
+        # CognitoUserPoolClient:
+        #     Type: AWS::Cognito::UserPoolClient
+        #     Properties:
+        #         ClientName: ${self:provider.stage}-user-pool-client
+        #         UserPoolId:
+        #             Ref: "CognitoUserPool"
+        #         ExplicitAuthFlows:
+        #             - ALLOW_USER_SRP_AUTH
+        #             - ALLOW_USER_PASSWORD_AUTH
+        #         GenerateSecret: false
