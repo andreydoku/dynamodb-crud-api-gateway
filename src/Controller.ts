@@ -173,6 +173,10 @@ export const getAllTodos: APIGatewayProxyHandler = async (event: APIGatewayProxy
 		
 		const response = {
 			statusCode: 200,
+			headers: {
+				"Access-Control-Allow-Origin": '*',
+				"Access-Control-Allow-Credentials": false,
+			},
 			body: JSON.stringify( todos )
 		};
 		return response;
