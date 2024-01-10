@@ -112,7 +112,14 @@ functions:
           authorizer:
             name: authorizer
             arn: arn:aws:cognito-idp:us-east-2:494533539303:userpool/us-east-2_AggDUQFjv
-          
+          cors:
+            origins:
+              - http://localhost:5173
+              - https://dev.ds8zvv3z50q8o.amplifyapp.com
+            headers:
+              - Accept
+              - Authorization
+            allowCredentials: false
 
     iamRoleStatements:
       - Effect: "Allow"
